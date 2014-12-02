@@ -1,0 +1,12 @@
+
+
+Connections for LCD project
+
+HD44780 LCD Pinout:
+1. GND
+2. VCC
+3. Contrast
+4. RS
+5. R/W
+6. E
+8-14. D0-D7

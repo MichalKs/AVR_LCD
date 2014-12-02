@@ -22,6 +22,7 @@
 #include <led.h>
 #include <timers.h>
 #include <comm.h>
+#include <hd44780.h>
 
 #define SYSTICK_FREQ 1000 ///< Frequency of the SysTick set at 1kHz.
 #define COMM_BAUD_RATE 115200UL ///< Baud rate for communication with PC
@@ -45,48 +46,12 @@ int printfWrite(char c, FILE *stream) {
 
 FILE mystdout = FDEV_SETUP_STREAM(printfWrite, NULL, _FDEV_SETUP_WRITE);
 
-#include <avr/io.h>
-
-//void alarmSignalInit(void) {
-//
-//  DDRD |= (1<<3); // output pin
-//  PORTD |= (1<<3); //
-//
-//}
-//
-//void setAlarm(uint8_t val) {
-//
-//  if (val) {
-//    PORTD |= (1<<3);
-//  } else {
-//    PORTD &= ~(1<<3);
-//  }
-//
-//
-//}
-
-//void initContactSwitch(void) {
-//
-//  DDRD &= ~(1<<2); // input pin
-//  PORTD |= (1<<2); // pull up resistor
-//
-//}
-//
-//uint8_t checkContactSwitch(void) {
-//
-//  return !(PIND & (1<<2));
-//}
-
-uint8_t alarm;
 
 /**
  * @brief Main function
  * @return
  */
 int main(void) {
-
-//  initContactSwitch();
-//  alarmSignalInit();
 
   stdout = &mystdout;
 
@@ -105,16 +70,12 @@ int main(void) {
 	LED_Init(LED2); // Add an LED
 	LED_ChangeState(LED2, LED_ON);
 
+	LCD_Init(); // Initialize the LCD
+
 	while (1) {
 
-//	  alarm = checkContactSwitch();
-//	  if (alarm) {
-//	    setAlarm(1);
-//	  } else {
-//	    setAlarm(0);
-//	  }
-
 	  TIMER_SoftTimersUpdate(); // run timers
+	  LCD_Update(); // run LCD
 	}
 }
 
@@ -126,10 +87,36 @@ void softTimerCallback(void) {
   LED_Toggle(LED1);
   LED_Toggle(LED0);
 
-  if (!alarm)
-    println("Door open");
-  else {
-    println("Door closed");
+  static uint8_t counter;
+
+  switch(counter % 8) {
+  case 0:
+    LCD_Clear();
+    LCD_Puts("Start...");
+    break;
+  case 1:
+    LCD_Position(3,1);
+    break;
+  case 2:
+    LCD_Putc('1');
+    break;
+  case 3:
+    LCD_ShifDisplay(4,0);
+    break;
+  case 4:
+    LCD_Position(6, 0);
+    break;
+  case 5:
+    LCD_Putc('a');
+    break;
+  case 6:
+    LCD_Clear();
+    break;
+  case 7:
+    LCD_Puts("Finished test!!!");
+    break;
   }
+
+  counter++;
 
 }
