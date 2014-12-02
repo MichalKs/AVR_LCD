@@ -23,6 +23,7 @@
 #include <timers.h>
 #include <comm.h>
 #include <hd44780.h>
+#include <printf_setup.h>
 
 #define SYSTICK_FREQ 1000 ///< Frequency of the SysTick set at 1kHz.
 #define COMM_BAUD_RATE 115200UL ///< Baud rate for communication with PC
@@ -39,13 +40,6 @@ void softTimerCallback(void);
 #define println(str, args...) (void)0
 #endif
 
-int printfWrite(char c, FILE *stream) {
-  COMM_Putc(c);
-  return 0;
-}
-
-FILE mystdout = FDEV_SETUP_STREAM(printfWrite, NULL, _FDEV_SETUP_WRITE);
-
 
 /**
  * @brief Main function
@@ -53,10 +47,9 @@ FILE mystdout = FDEV_SETUP_STREAM(printfWrite, NULL, _FDEV_SETUP_WRITE);
  */
 int main(void) {
 
-  stdout = &mystdout;
-
   COMM_Init(COMM_BAUD_RATE);
 
+  printfSetup(); // set up stdout stream for printf
   println("Starting program");
 
   TIMER_Init(SYSTICK_FREQ); // Initialize timer
@@ -117,6 +110,7 @@ void softTimerCallback(void) {
     break;
   }
 
+  println("Printf test");
   counter++;
 
 }
